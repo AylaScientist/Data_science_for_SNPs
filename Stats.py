@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import statsmodels.stats as smt
-
+from statsmodels.stats import multitest
 
 def heatmap(df, group_names):
     af_groups = []
@@ -70,25 +70,21 @@ def chi_test(df, af_samples, experiment, exp):
         chi_group2 = []
         p_chi_group2 = []
         stat_chi_group2 = []
-        fdr_pval_group2 = []
-        fdr_statistic_group2 = []
 
         # Perform the test
         for i in range(len(df)):
             chi_group2.append(chisquare(cols_exp.iloc[i,], f_exp=cols_control.iloc[i,]))
             p_chi_group2.append(chi_group2[i].pvalue)
             stat_chi_group2.append(chi_group2[i].statistic)
-            # add the multitest also
-            multi = smt.multitest.multipletests(chi_group2[i].pvalue, alpha=0.05, method='bonferroni', is_sorted=False,
-                                                returnsorted=False)
-            fdr_pval_group2.append(multi[1][0])
-            fdr_statistic_group2.append(multi[0][0])
 
+        # add the multitest also
+        multi = smt.multitest.multipletests(p_chi_group2, alpha=0.05, method='bonferroni', is_sorted=False,
+                                            returnsorted=False)
         # Append the p-values
         pvalue = experiment + "_CHI_p-val"
         pfdr = experiment + "_CHI_p-fdr"
         df[pvalue] = p_chi_group2
-        df[pfdr] = fdr_pval_group2
+        df[pfdr] = multi[1][0]
 
     elif len(group1_samples) < len(group2_samples):
         print("WARNING: CHI2 Test for ", experiment,
@@ -104,25 +100,21 @@ def chi_test(df, af_samples, experiment, exp):
         chi_group2 = []
         p_chi_group2 = []
         stat_chi_group2 = []
-        fdr_pval_group2 = []
-        fdr_statistic_group2 = []
 
         # Perform the test
         for i in range(len(df)):
             chi_group2.append(chisquare(cols_exp.iloc[i,], f_exp=cols_control.iloc[i,]))
             p_chi_group2.append(chi_group2[i].pvalue)
             stat_chi_group2.append(chi_group2[i].statistic)
-            # add the multitest also
-            multi = smt.multitest.multipletests(chi_group2[i].pvalue, alpha=0.05, method='bonferroni', is_sorted=False,
-                                                returnsorted=False)
-            fdr_pval_group2.append(multi[1][0])
-            fdr_statistic_group2.append(multi[0][0])
+        # add the multitest also
+        multi = smt.multitest.multipletests(p_chi_group2, alpha=0.05, method='bonferroni', is_sorted=False,
+                                            returnsorted=False)
 
         # Append the p-values
         pvalue = experiment + "_CHI_p-val"
         pfdr = experiment + "_CHI_p-fdr"
         df[pvalue] = p_chi_group2
-        df[pfdr] = fdr_pval_group2
+        df[pfdr] = multi[1][0]
 
     else:
         cols_control = df[df.columns[df.columns.isin(group1_samples)]]
@@ -131,25 +123,21 @@ def chi_test(df, af_samples, experiment, exp):
         chi_group2 = []
         p_chi_group2 = []
         stat_chi_group2 = []
-        fdr_pval_group2 = []
-        fdr_statistic_group2 = []
 
         # Perform the test
         for i in range(len(df)):
             chi_group2.append(chisquare(cols_exp.iloc[i,], f_exp=cols_control.iloc[i,]))
             p_chi_group2.append(chi_group2[i].pvalue)
             stat_chi_group2.append(chi_group2[i].statistic)
-            # add the multitest also
-            multi = smt.multitest.multipletests(chi_group2[i].pvalue, alpha=0.05, method='bonferroni', is_sorted=False,
-                                                returnsorted=False)
-            fdr_pval_group2.append(multi[1][0])
-            fdr_statistic_group2.append(multi[0][0])
 
+        # add the multitest also
+        multi = smt.multitest.multipletests(p_chi_group2, alpha=0.05, method='bonferroni', is_sorted=False,
+                                            returnsorted=False)
         # Append the p-values
         pvalue = experiment + "_CHI_p-val"
         pfdr = experiment + "_CHI_p-fdr"
         df[pvalue] = p_chi_group2
-        df[pfdr] = fdr_pval_group2
+        df[pfdr] = multi[1][0]
 
     return df
 
@@ -192,8 +180,6 @@ def fisher_test(df, samples, exp, experiment):
         for group1_sample in group1_samples:
             p_fisher = []
             stat_fisher = []
-            fdr_pval = []
-            fdr_statistic = []
             for i in range(len(df)):
                 # sample names and positions
                 control_r = df.iloc[i, int(df.columns.get_loc(group1_sample + r))]
@@ -206,17 +192,15 @@ def fisher_test(df, samples, exp, experiment):
                 stat_fisher.append(oddsratio)
                 p_fisher.append(pvalue)
 
-                # add the multitest also
-                multi = smt.multitest.multipletests(p_fisher[i], alpha=0.05, method='fdr_bh', is_sorted=False,
-                                                    returnsorted=False)
-                fdr_pval.append(multi[1][0])
-                fdr_statistic.append(multi[0][0])
+            # add the multitest also
+            multi = smt.multitest.multipletests(p_fisher, alpha=0.05, method='fdr_bh', is_sorted=False,
+                                                returnsorted=False)
 
             # Make columns of the dataframe with the results
             fisher_pval = experiment + "_" + group1_sample + group2_samples[k] + "_Fisher_p-val"
             fisher_fdr = experiment + "_" + group1_sample + group2_samples[k] + "_Fisher_p-fdr"
             df[fisher_pval] = pd.Series(p_fisher, index = df.index)
-            df[fisher_fdr] = pd.Series(fdr_pval, index = df.index)
+            df[fisher_fdr] = pd.Series(multi[1], index = df.index)
             k = (k + 1)
 
 
@@ -234,8 +218,6 @@ def fisher_test(df, samples, exp, experiment):
         for group1_sample in group1_samples:
             p_fisher = []
             stat_fisher = []
-            fdr_pval = []
-            fdr_statistic = []
             for i in range(len(df)):
                 # sample names and positions
                 control_r = df.iloc[i, int(df.columns.get_loc(group1_sample + r))]
@@ -248,17 +230,16 @@ def fisher_test(df, samples, exp, experiment):
                 stat_fisher.append(oddsratio)
                 p_fisher.append(pvalue)
 
-                # add the multitest also
-                multi = smt.multitest.multipletests(p_fisher[i], alpha=0.05, method='fdr_bh', is_sorted=False,
-                                                    returnsorted=False)
-                fdr_pval.append(multi[1][0])
-                fdr_statistic.append(multi[0][0])
+
+            # add the multitest also
+            multi = smt.multitest.multipletests(p_fisher, alpha=0.05, method='fdr_bh', is_sorted=False,
+                                                returnsorted=False)
 
             # Make columns of the dataframe with the results
             fisher_pval = experiment + "_" + group1_sample + group2_samples[k] + "_Fisher_p-val"
             fisher_fdr = experiment + "_" + group1_sample + group2_samples[k] + "_Fisher_p-fdr"
             df[fisher_pval] = pd.Series(p_fisher, index=df.index)
-            df[fisher_fdr] = pd.Series(fdr_pval, index=df.index)
+            df[fisher_fdr] = pd.Series(multi[1], index=df.index)
             k = k + 1
 
     else:
@@ -275,8 +256,6 @@ def fisher_test(df, samples, exp, experiment):
         for group1_sample in group1_samples:
             p_fisher = []
             stat_fisher = []
-            fdr_pval = []
-            fdr_statistic = []
             for i in range(len(df)):
                 # sample names and positions
                 control_r = df.iloc[i, int(df.columns.get_loc(group1_sample + r))]
@@ -289,17 +268,15 @@ def fisher_test(df, samples, exp, experiment):
                 stat_fisher.append(oddsratio)
                 p_fisher.append(pvalue)
 
-                # add the multitest also
-                multi = smt.multitest.multipletests(p_fisher[i], alpha=0.05, method='fdr_bh', is_sorted=False,
-                                                    returnsorted=False)
-                fdr_pval.append(multi[1][0])
-                fdr_statistic.append(multi[0][0])
+            # add the multitest also
+            multi = smt.multitest.multipletests(p_fisher, alpha=0.05, method='fdr_bh', is_sorted=False,
+                                                returnsorted=False)
 
             # Make columns of the dataframe with the results
             fisher_pval = experiment + "_" + group1_sample + group2_samples[k] + "_Fisher_p-val"
             fisher_fdr = experiment + "_" + group1_sample + group2_samples[k] + "_Fisher_p-fdr"
             df[fisher_pval] = pd.Series(p_fisher, index=df.index)
-            df[fisher_fdr] = pd.Series(fdr_pval, index=df.index)
+            df[fisher_fdr] = pd.Series(multi[1], index=df.index)
             k = k + 1
 
 
@@ -330,28 +307,27 @@ def binomial(df,samples):
             # Perform the test
             binom = (sc.stats.binom_test(ref, total_reads, 0.5, alternative='two-sided'))
             pval.append(binom)
-            # add the multitest also
-            multi = smt.multitest.multipletests(binom, alpha=0.05, method='fdr_bh', is_sorted=False,
-                                                returnsorted=False)
-            fdr_pval.append(multi[1][0])
+
+        # add the multitest also
+        multi = smt.multitest.multipletests(pval, alpha=0.05, method='fdr_bh', is_sorted=False,
+                                            returnsorted=False)
         col_name_binom = sample + "_Binomial_pvalue"
         col_name_multi = sample + "Binomial_fdr_pvalue"
         df[col_name_binom] = pd.Series(pval, index=df.index)
-        df[col_name_multi] = pd.Series(fdr_pval, index=df.index)
+        df[col_name_multi] = pd.Series(multi[1], index=df.index)
     print("Binomial test successfully performed on all the experiments")
     return df
 
 
 def main ():
     # Read the working path
-    PATH = os.getcwd()
+    cwd = os.getcwd()
 
     # Import the files
-    df = pd.read_csv("QC.csv")
-    exp = pd.read_csv("Experimental_design.csv")
-    groups_df = pd.read_csv("Experimental_groups.csv")
-    sample_names = pd.read_csv("Sample_names.csv")
-    df_qc = pd.read_csv("QC.csv")
+    exp = pd.read_csv("Experimental_design_Weismann.csv")
+    groups_df = pd.read_csv("Experimental_groups_Weismann.csv")
+    sample_names = pd.read_csv("Sample_names_Weismann.csv")
+    df_qc = pd.read_csv("QC_Weismann.csv")
 
     # Create a numpy array of arrays with the samples of each group and the total samples of the experiment
     groups = groups_df.values
@@ -440,12 +416,11 @@ def main ():
     Now let's perform the test.
     """
 
+    os.chdir("temp")
     df_chi = chi_square(df_qc, samples, exp, experiments)
 
-    os.chdir("temp")
     df_chi.to_csv("Chi_test.csv")
-    PATH = os.getcwd()
-    os.chdir(PATH)
+
     """ 
     Fisher exact test for ASE
     -------------------------
@@ -473,7 +448,8 @@ def main ():
 
     df_binomial = binomial(df_fisher, samples)
 
-    df_binomial.to_csv("SNPs_analysed.csv")
+    os.chdir(cwd)
+    df_binomial.to_csv("SNPs_analysed_Weismann.csv")
     print("Analyzed data available in 'SNPs_analysed.csv'")
 
 if __name__ == '__main__' :

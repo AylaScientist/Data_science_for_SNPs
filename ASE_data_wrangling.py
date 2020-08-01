@@ -78,7 +78,7 @@ def evaluation(df, sample, PSGs):
 
     # Start iterator
     for i in range(len(df)):
-        # Case heterozygots
+        # Case homozygots for the two pseudogenoes
         if (df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG1_GT]) and (df.iloc[i, rPSG2_GT] == df.iloc[i, aPSG2_GT]) and (
                 df.iloc[i, rPSG1_GT] == df.iloc[i, rPSG2_GT]) and (df.iloc[i, aPSG1_GT] == df.iloc[i, aPSG2_GT]):
             r_GT.append(df.iloc[i, rPSG1_GT])
@@ -99,58 +99,69 @@ def evaluation(df, sample, PSGs):
         # Case 3 Inverse situation Ref and Alt in both for df
         elif (df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG2_GT]) and (df.iloc[i, aPSG1_GT] == df.iloc[i, rPSG2_GT]):
             r_GT.append(df.iloc[i, rPSG1_GT])
-            x = (df.iloc[i, rPSG1_AD] + df.iloc[i, aPSG2_AD]) / 2
+            x = (df.iloc[i, rPSG1_AD] + df.iloc[i, aPSG2_AD]) / 2  # averaged by 2 (for each mapping method)
             r_AD.append(x)
             a_GT.append(df.iloc[i, aPSG1_GT])
-            y = (df.iloc[i, aPSG1_AD] + df.iloc[i, rPSG2_AD]) / 2
+            y = (df.iloc[i, aPSG1_AD] + df.iloc[i, rPSG2_AD]) / 2  # averaged by 2 (for each mapping method)
             a_AD.append(y)
 
-        # Case 4 First homozygot, second with alternative allele in second position
+        # Case 4 First homozygot, second with alternative allele in second position (as alternative)
         elif (df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG1_GT]) and (df.iloc[i, rPSG2_GT] != df.iloc[i, aPSG2_GT]) and (
                 df.iloc[i, rPSG1_GT] == df.iloc[i, rPSG2_GT]):
             r_GT.append(df.iloc[i, rPSG1_GT])
             x = (df.iloc[i, rPSG1_AD] + df.iloc[i, aPSG1_AD] + df.iloc[
-                i, rPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 individuals
+                i, rPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 mapping methods (averaged by 2)
             r_AD.append(x)
             a_GT.append(df.iloc[i, aPSG2_GT])
             y = df.iloc[i, aPSG2_AD]
             a_AD.append(y)
 
-        # Case 5 First homozygot, second with alternative allele in first position of the second genome
+        # Case 5 First homozygot, second with alternative allele in first position  (as reference)
         elif ((df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG1_GT]) and (df.iloc[i, rPSG2_GT] != df.iloc[i, aPSG2_GT]) and (
                 df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG2_GT])):
             r_GT.append(df.iloc[i, rPSG1_GT])
             x = (df.iloc[i, rPSG1_AD] + df.iloc[i, aPSG1_AD] + df.iloc[
-                i, aPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 individuals
+                i, aPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 mapping methods (averaged by 2)
             r_AD.append(x)
             a_GT.append(df.iloc[i, rPSG2_GT])
             y = df.iloc[i, rPSG2_AD]
             a_AD.append(y)
 
-        # Case 6 Second homozygot, first with alternative allele in second position of the first genome
+        # Case 6 Second homozygot, first heterozygot with alternative allele in second position (as alternative)
         elif (df.iloc[i, rPSG1_GT] != df.iloc[i, aPSG1_GT]) and (df.iloc[i, rPSG2_GT] == df.iloc[i, aPSG2_GT]) and (
                 df.iloc[i, rPSG1_GT] == df.iloc[i, rPSG2_GT]):
             r_GT.append(df.iloc[i, rPSG1_GT])
-            x = df.iloc[i, rPSG1_AD]
+            x = (df.iloc[i, rPSG1_AD] + df.iloc[i, rPSG2_AD] + df.iloc[
+                i, aPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 mapping methods (averaged by 2)
             r_AD.append(x)
             a_GT.append(df.iloc[i, aPSG1_GT])
-            y = (df.iloc[i, aPSG1_AD] + df.iloc[i, rPSG2_AD] + df.iloc[
-                i, aPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 individuals
+            y = df.iloc[i, aPSG1_AD]
             a_AD.append(y)
 
-        # Case 7 Second homozygot, first with alternative allele in first position of the first genome
+        # Case 7 Second homozygot, first heterozygot with alternative allele in first position (as reference)
         elif (df.iloc[i, rPSG1_GT] != df.iloc[i, aPSG1_GT]) and (df.iloc[i, rPSG2_GT] == df.iloc[i, aPSG2_GT]) and (
-                df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG2_GT]):
+                df.iloc[i, aPSG1_GT] == df.iloc[i, aPSG2_GT]):
             r_GT.append(df.iloc[i, rPSG1_GT])
             x = df.iloc[i, rPSG1_AD]
             r_AD.append(x)
             a_GT.append(df.iloc[i, rPSG2_GT])
             y = (df.iloc[i, aPSG1_AD] + df.iloc[i, rPSG2_AD] + df.iloc[
-                i, aPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 individuals
+                i, aPSG2_AD]) / 2  # counts from 3 cells from which one is 0, from 2 mapping methods (averaged by 2)
+            a_AD.append(y)
+
+        # Case 8 Both homozygot, first for the reference allele and second for the alternative allele
+        elif (df.iloc[i, rPSG1_GT] == df.iloc[i, aPSG1_GT]) and (df.iloc[i, rPSG2_GT] == df.iloc[i, aPSG2_GT]) and (
+                df.iloc[i, aPSG1_GT] != df.iloc[i, aPSG2_GT]):
+            r_GT.append(df.iloc[i, rPSG1_GT])
+            x = df.iloc[i, rPSG1_AD] + df.iloc[i, aPSG1_AD]  # one of these counts will be 0 so no need to average
+            r_AD.append(x)
+            a_GT.append(df.iloc[i, rPSG2_GT])
+            y = df.iloc[i, rPSG2_AD] + df.iloc[i, aPSG2_AD]  # one of these counts will be 0 so no need to average
             a_AD.append(y)
 
         else:
-            print("Error in df row ", i, ", sample num ", sample)
+            print("Error in the SNP in the coordinates ", df.iloc[i, "CHROM"], ", ", df.iloc[i, "POS"], ", sample num ",
+                  sample)
 
     return (r_GT, r_AD, a_GT, a_AD)
 
@@ -159,7 +170,7 @@ def sample_average(df, samples, PSGs):
     cols = []  # Index of columns to be drop in the end
     # Create 4 columns for each averaged sample:
     for sample in samples:
-        print("Sample average in sample ", sample,"\n")
+        print("Sample average in sample ", sample, "\n")
         # Average each sample according to genotype:
         (r_GT, r_AD, a_GT, a_AD) = evaluation(df, sample, PSGs)
 
@@ -206,7 +217,9 @@ def AD10(df, samples):
     # Keep all this analysis for the same individual including two tissues at a time
     i = 0
     indexes_ad10 = 0
-    if str(path.exists("Samples_MAE.csv")):
+    x = str(path.exists("Samples_MAE.csv"))
+    if (x == True):
+        # Verification that there are two tissues
         tissues = pd.read_csv("Samples_MAE.csv")
         tissues = pd.DataFrame(tissues)
         first_samples = tissues.iloc[:, 0]
@@ -222,14 +235,15 @@ def AD10(df, samples):
                 (((df[sample1_a_ad] + df[sample1_r_ad]) < 10) | ((df[sample2_a_ad] + df[sample2_r_ad]) < 10))].index
             if i == 0:
                 indexes_ad10 = np.array(index_sample)
-                print("Number of rows to drop for sample ",first_sample," ", len(indexes_ad10))
+                print("Number of rows to drop for sample ", first_sample, " ", len(indexes_ad10))
                 i = i + 1
             elif i != 0:
                 index_sample = np.array(index_sample)
                 indexes_ad10 = np.intersect1d(indexes_ad10, index_sample)
-                print("Number accumulated of rows to drop for sample ",first_sample," ", len(indexes_ad10))
+                print("Number accumulated of rows to drop for sample ", first_sample, " ", len(indexes_ad10))
                 i = i + 1
     else:
+        # There is only one tissue
         for sample in samples:
             print("AD10 filter in sample ", sample)
             sample_r_ad = str(sample + "_R_.AD")
@@ -250,7 +264,7 @@ def AD10(df, samples):
     return df
 
 
-def compare(df, sample, sample1rgt):
+def compare(df, sample, R_models, A_models):
     # This iterator will construct the new columns for the samples according to the reference and alternative alleles
     # assigned in sample1
 
@@ -268,32 +282,115 @@ def compare(df, sample, sample1rgt):
 
     print("Compare genotypes loop in sample: ", sample)
 
-    # Start iterator
+    # Start iterator for model genotypes
     for i in range(len(df)):
-        if (df.iloc[i, sample1rgt] == df.iloc[i, sample_r_gt]):
+        if R_models[i] == A_models[i] and R_models[i] == ".":
+            # print("Previous: ", R_models[i], A_models[i], ", new: ", df.iloc[i, sample_r_gt], df.iloc[i, sample_a_gt])
+            R_models[i] = df.iloc[i, sample_r_gt]
+            A_models[i] = df.iloc[i, sample_a_gt]
+
+    # Start iterator for comaprison
+    for i in range(len(df)):
+        if R_models[i] == df.iloc[i, sample_r_gt] and A_models[i] == df.iloc[i, sample_a_gt]:
+            # 1 Reference and alternative are set in the same position for sample and sample1 (reference)
+            # It applies to both samples heterozygots or both homozygots with same genotype
             r_AD.append(df.iloc[i, sample_r_ad])
             a_AD.append(df.iloc[i, sample_a_ad])
             r_GT.append(df.iloc[i, sample_r_gt])
             a_GT.append(df.iloc[i, sample_a_gt])
-        else:
+        elif A_models[i] == df.iloc[i, sample_r_gt] and R_models[i] == df.iloc[i, sample_a_gt]:
+            # 2 Reference and alternative are set in the inverse position for sample and sample1 (reference)
+            # It applies to both samples heterozygots or both homozygots with same genotype
             r_AD.append(df.iloc[i, sample_a_ad])
             a_AD.append(df.iloc[i, sample_r_ad])
             r_GT.append(df.iloc[i, sample_a_gt])
             a_GT.append(df.iloc[i, sample_r_gt])
+        elif R_models[i] == df.iloc[i, sample_r_gt] and A_models[i] == df.iloc[i, sample_r_gt] and A_models[i] != \
+                df.iloc[i, sample_a_gt]:
+            # 3 It applies to first sample homozygot and second sample heterozygot with the alternative allele in second
+            r_AD.append(df.iloc[i, sample_r_ad])
+            a_AD.append(df.iloc[i, sample_a_ad])
+            r_GT.append(df.iloc[i, sample_r_gt])
+            a_GT.append(df.iloc[i, sample_a_gt])
+        elif R_models[i] != df.iloc[i, sample_r_gt] and A_models[i] != df.iloc[i, sample_r_gt] and A_models[i] == \
+                df.iloc[
+                    i, sample_a_gt]:
+            # 4 It applies to first sample homozygot and second sample heterozygot with the alternative allele in first
+            r_AD.append(df.iloc[i, sample_a_ad])
+            a_AD.append(df.iloc[i, sample_r_ad])
+            r_GT.append(df.iloc[i, sample_a_gt])
+            a_GT.append(df.iloc[i, sample_r_gt])
+        elif R_models[i] == A_models[i] and R_models[i] != df.iloc[i, sample_r_gt] and df.iloc[i, sample_r_gt] == \
+                df.iloc[i, sample_a_gt]:
+            # 5 It applies to first sample homozygot for the reference allele and second sample homozygot for the
+            # alternative allele
+            a_AD.append(df.iloc[i, sample_r_ad] + df.iloc[i, sample_a_ad])  # One of them will be 0
+            r_GT.append(df.iloc[i, sample_a_gt])
+            a_GT.append(df.iloc[i, sample_a_gt])
+            r_AD.append(0)
+        elif R_models[i] != A_models[i] and R_models[i] == df.iloc[i, sample_r_gt] and df.iloc[i, sample_r_gt] == \
+                df.iloc[i, sample_a_gt]:
+            # 6 It applies to first sample heterozygot and second sample homozygot for the reference allele
+            r_GT.append(df.iloc[i, sample_r_gt])
+            a_GT.append(df.iloc[i, sample_r_gt])
+            r_AD.append(df.iloc[i, sample_r_ad] + df.iloc[i, sample_r_ad])  # One of them will be 0
+            a_AD.append(0)
+        elif R_models[i] != A_models[i] and A_models[i] == df.iloc[i, sample_a_gt] and df.iloc[i, sample_r_gt] == \
+                df.iloc[i, sample_a_gt]:
+            # 7 It applies to first sample heterozygot and second sample homozygot for the alternative allele
+            a_AD.append(df.iloc[i, sample_r_ad] + df.iloc[i, sample_a_ad])  # One of them will be 0
+            r_GT.append(df.iloc[i, sample_a_gt])
+            a_GT.append(df.iloc[i, sample_a_gt])
+            r_AD.append(0)
+        elif R_models[i] == df.iloc[i, sample_r_gt] and A_models[i] == df.iloc[i, sample_r_gt] and df.iloc[
+            i, sample_r_gt] == df.iloc[i, sample_a_gt]:
+            # 8 It applies to first sample homozygot for the reference allele and second sample homozygot for the
+            # reference allele too
+            r_AD.append(df.iloc[i, sample_r_ad] + df.iloc[i, sample_a_ad])  # One of them will be 0
+            r_GT.append(df.iloc[i, sample_r_gt])
+            a_GT.append(df.iloc[i, sample_r_gt])
+            a_AD.append(0)
+        elif R_models[i] == A_models[i] and R_models[i] == ".":
+            # 9 SNP not expressed in the sample1 as reference gentoype
+            r_AD.append(df.iloc[i, sample_r_ad])
+            a_AD.append(df.iloc[i, sample_a_ad])
+            r_GT.append(df.iloc[i, sample_r_gt])
+            a_GT.append(df.iloc[i, sample_a_gt])
+            print(i)
+            """
+            genotype_models = pd.DataFrame(data=[R_models, A_models]).T
+            genotype_models.to_csv("Genotype_models.csv")
+            """
+        elif df.iloc[i, sample_r_gt] == df.iloc[i, sample_a_gt] and df.iloc[i, sample_r_gt] == ".":
+            # 10 SNP not expressed in the sample to evaluate
+            r_AD.append(0)
+            a_AD.append(0)
+            r_GT.append(".")
+            a_GT.append(".")
+        else:
+            print("ERROR: Comparison of genotypes of sample ",
+                  sample, " provided an error for the SNP in the row ", i, " with genotypes ",
+                  df.iloc[i, sample_a_gt], ", ",
+                  df.iloc[i, sample_r_gt], ". You must check if the evaluation of this case is correct")
 
-    return (r_AD, a_AD, r_GT, a_GT)
+    # Make a dataframe with the model genotypes
+    genotype_models = pd.DataFrame(data=[R_models, A_models]).T
+    genotype_models.to_csv("Genotype_models.csv")
+
+    return r_AD, a_AD, r_GT, a_GT, R_models, A_models
 
 
 def genotype(df, samples):
     # Determines the genotypes for sample1 and calls the function to compare genotypes
     i = 0
-    sample1rgt = 0
     for sample in samples:
         i = i + 1
-        if i == 1:
-            sample1rgt = int(df.columns.get_loc(str(sample + "_R_.GT")))
-        elif i != 1:
-            (r_ad, a_ad, r_gt, a_gt) = compare(df, sample, sample1rgt)
+        if i == 1:  # If we are in the first sample we set the reference
+            R_models = df[str(sample + "_R_.GT")].to_numpy()
+            A_models = df[str(sample + "_A_.GT")].to_numpy()
+
+        elif i != 1:  # If we already passed the first sample
+            (r_ad, a_ad, r_gt, a_gt, R_models, A_models) = compare(df, sample, R_models, A_models)
 
             # Collection the name of the samples
             sample_r_gt = str(sample + "_R_.GT")
@@ -306,6 +403,7 @@ def genotype(df, samples):
             df[sample_a_gt] = a_gt
             df[sample_r_ad] = r_ad
             df[sample_a_ad] = a_ad
+
     return df
 
 
@@ -331,7 +429,9 @@ def frequencies(df, samples):
 def MAE(df, samples):
     # Collect the indexes whose allele frequencies are 0 or 1 in both tissues of the same individual. These indexes
     # correspond to the SNPs that are MAE for at least one sample
-    if str(path.exists("Samples_MAE.csv")):
+    x = str(path.exists("Samples_MAE.csv"))
+    if (x == True):
+        # Case where there are two tissues compared
         tissues = pd.read_csv("Samples_MAE.csv")
         tissues = pd.DataFrame(tissues)
         first_samples = tissues.iloc[:, 0]
@@ -345,6 +445,7 @@ def MAE(df, samples):
             df.drop(index=index_af, inplace=True)
             i = i + 1
     else:
+        # Case where there is only one tissue
         for sample in samples:
             af = str("AF_" + sample)
             index_af = df[(df[af] == 0) | (df[af] == 1)].index
@@ -361,24 +462,28 @@ def main():
     # Read the dataframe and convert it into pandas dataframe. PSG stands for pseudogenome:
 
     PATH = os.getcwd()
+
     """
-    print(PATH)
-    PSG1_name: str = input("Please enter the file name of the AD_GT_counts_bi for the first pseudogenome:\n")
-    PSG2_name: str = input("Please enter the file name of the AD_GT_counts_bi for the second pseudogenome:\n")
-    
+    PSG1_name: str = input("Please enter the file name of the SNPs_for_wrangling for the first pseudogenome:\n")
+    PSG2_name: str = input("Please enter the file name of the SNPs_for_wrangling for the second pseudogenome:\n")
+
     PSG1 = pd.read_csv(PSG1_name, low_memory=False)
     PSG2 = pd.read_csv(PSG2_name, low_memory=False)
+
     """
-    PSG1 = pd.read_csv("AD_GT_counts_bi_GF3.csv", low_memory=False)
-    PSG2 = pd.read_csv("AD_GT_counts_bi_KF6.csv", low_memory=False)
+    PSG1 = pd.read_csv("SNPs_for_wrangling_Weismann_GF3.csv", low_memory=False)
+    PSG2 = pd.read_csv("SNPs_for_wrangling_Weismann_KF6.csv", low_memory=False)
+
     PSG1 = pd.DataFrame(PSG1)
     PSG2 = pd.DataFrame(PSG2)
 
     # Read the sample names and the codes for each pseudogenome:
-    """sample_names = pd.read_csv(input("Please enter the file name that has the sample names:\n"))
+    """
+    sample_names = pd.read_csv(input("Please enter the file name that has the sample names:\n"))
     PSG_codes = pd.read_csv(input("Please enter the file name that has the pseudogenomes codes:\n"))"
     """
-    sample_names = pd.read_csv("Sample_names.csv")
+
+    sample_names = pd.read_csv("Sample_names_Weismann.csv")
     PSG_codes = pd.read_csv("Pseudogenome_codes.csv")
 
     # Create arrays of the sample names and the pseudogenome codes
@@ -478,13 +583,17 @@ def main():
     
     7.- The mapping against the reference genome produced an heterozygot with reference and alternative alleles. The 
     mapping against the alternative pseudogenome produced an homozygot for the alternative allele. In that case, 
-    reference and alternative allele must be set according to the reference pseudogenome and the counts must be averaged 
-    for both individuals in the alternative allele. 
+    reference and alternative allele must be set according to the reference pseudogenome and the counts of the 
+    alternative allele must be averaged for both individuals. 
+    
+    8.- The mapping against the reference genome produced an homozygot for the reference allele. The mapping against the 
+    alterantive pseudogenome produced an homozygot for the alternative allele. In that case, the reference allele is set 
+    according to the first pseudogenome and summing the counts of this reference allele and the alternative allele is set
+    following the second pseudogenome and the counts of this alternative allele are summed.
     
     This analysis is repeated for each sample and will assign reference and alternative alleles independently. The 
-    assignation of reference and alternative alleles uniformly in all the samples will be developed in a further step of the 
-    workflow.
-    
+    assignation of reference and alternative alleles uniformly in all the samples will be developed in a further step of 
+    the workflow.
     """
 
     df_average, cols = sample_average(df_bi, samples, PSGs)
@@ -499,7 +608,7 @@ def main():
     """
     DELETE SNPs WITH AD<10
     ----------------------
-    This new function cleans the SNPs that do not have enough counts and are considered possible bad reads
+    This new function cleans the SNPs that do not have enough counts and are considered possible poor quality reads
     """
 
     df_AD10 = AD10(df_average, samples)
@@ -510,11 +619,11 @@ def main():
     os.chdir(PATH)
 
     """
-    ASSIGN REFERENCE AND ALTERNATIVE ALLELES UNIFORMLY IN ALL SAMPLES
-    -----------------------------------------------------------------
-    Reference and alternative alleles have been assigned by sample. This function will correct it and will assign the 
-    reference and alternative alleles according to the pattern established in sample 1.
-    """
+        ASSIGN REFERENCE AND ALTERNATIVE ALLELES UNIFORMLY IN ALL SAMPLES
+        -----------------------------------------------------------------
+        Reference and alternative alleles have been assigned by sample. This function will correct it and will assign the
+        reference and alternative alleles according to the pattern established in sample 1.
+        """
 
     df_uni = genotype(df_AD10, samples)
 
@@ -529,10 +638,10 @@ def main():
     The monoallelic expression (MAE) can result from homozygots as well as imprinted genes. In order to distinguish each
     case, we need to know the genotype. However, that's not possible for the amount of SNPs that we are working with.
     Therefore we drop all the SNPs whose allele frequency is 0 or 1.
-    
-    If the samples are taken from different organs from the same individual, the system needs a file called 
+
+    If the samples are taken from two different organs from the same individual, the system needs a file called 
     "Samples_MAE.csv" where the sample name from an individual are in the same line and there are two columns, 
-    one for each tissue we need to compare. The name of the columns must be in plural.
+    one for each tissue/organ we need to compare. The name of the columns must be in plural for further iterations.
     """
 
     df_af = frequencies(df_uni, samples)
